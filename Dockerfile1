@@ -1,0 +1,14 @@
+ARG BASE_CONTAINER=jupyter/tensorflow-notebook:584f43f06586
+FROM $BASE_CONTAINER
+
+RUN pip install humanize
+RUN pip install boltons
+
+RUN pip install nltk
+RUN pip install gensim==4.0.1
+RUN pip install gym
+
+RUN pip install --quiet --no-cache-dir \
+    git+https://github.com/cleverhans-lab/cleverhans.git#egg=cleverhans && \
+    fix-permissions "${CONDA_DIR}" && \
+    fix-permissions "/home/${NB_USER}"
