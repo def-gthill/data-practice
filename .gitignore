@@ -1,3 +1,5 @@
 __pycache__
 adversarial/victim
 .ipynb_checkpoints
+*.pkl
+*/submissions/*
