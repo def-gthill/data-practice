@@ -13,3 +13,4 @@ dependencies:
   - pip
   - pip:
     - kaggle
+    - "--editable=git+https://github.com/def-gthill/bobs.git#egg=bobs"
