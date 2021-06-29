@@ -1,3 +1,7 @@
+import os
+import warnings
+from abc import ABCMeta, abstractmethod
+
 import pandas as pd
 from sklearn import preprocessing as skprep, impute
 from sklearn import dummy, linear_model as lm, ensemble
@@ -9,14 +13,88 @@ from bobs import prep, learn
 import data
 
 
-def dummy_model():
-    return learn.load_or_train("models/dummy.pkl", train_dummy_model)
+class Model(metaclass=ABCMeta):
+    @property
+    @abstractmethod
+    def name(self) -> str:
+        pass
+
+    @abstractmethod
+    def make_model(self):
+        pass
+
+    @abstractmethod
+    def make_refit_model(self):
+        """
+        Makes a model suitable for refitting, i.e.
+        one that uses the best hyperparameters already
+        found instead of trying to tune them.
+        """
+        pass
+
+    def save_path(self, variant: str = "") -> str:
+        return f"models/{self.name}{'_' + variant if variant else ''}.pkl"
+
+    def clear_saved(self, variant: str = ""):
+        """Clears the saved model, forcing it to be re-trained"""
+        try:
+            os.remove(self.save_path(variant))
+        except OSError:
+            warnings.warn(f"Can't clear the {self.name} model")
+
+    def get_trained_model(self, variant: str, x, y):
+        """
+        Loads the saved model if available, otherwise trains
+        a new model on the specified x and y values and saves
+        it
+        """
+        def train():
+            model = self.make_model()
+            model.fit(x, y)
+            return model
+
+        return learn.load_or_train(self.save_path(variant), train)
+
+    def get_split_model(self):
+        """
+        Trains the model on the train data only, or loads
+        it if already trained
+        """
+        return self.get_trained_model(
+            "", data.train_x, data.train_y.values.ravel()
+        )
+
+    def get_refit_model(self):
+        """
+        Trains the model on the full data set, or loads
+        it if already trained. Do this to get the final
+        model after choosing the design that works best
+        """
+        return self.get_trained_model(
+            "refit", data.data_x, data.data_y.values.ravel()
+        )
 
 
-def train_dummy_model():
-    model = dummy.DummyClassifier()
-    model.fit(data.train_x, data.train_y)
-    return model
+class DummyModel(Model):
+    @property
+    def name(self) -> str:
+        return "dummy"
+
+    def make_model(self):
+        return dummy.DummyClassifier()
+
+    def make_refit_model(self):
+        return self.make_model()
+
+
+# def dummy_model():
+#     return learn.load_or_train("models/dummy.pkl", train_dummy_model)
+#
+#
+# def train_dummy_model():
+#     model = dummy.DummyClassifier()
+#     model.fit(data.train_x, data.train_y)
+#     return model
 
 
 def gender_model():
