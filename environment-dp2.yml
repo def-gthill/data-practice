@@ -9,6 +9,8 @@ dependencies:
   - ipykernel
   - matplotlib=3.4.*
   - pycaret=2.3.*
+  - xgboost=1.4.*
+  - catboost=0.26.*
   - seaborn=0.11.*
   - pip=21.1.*
   - pip:

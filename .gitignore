@@ -1,7 +1,15 @@
+# Python
 __pycache__
-adversarial/victim
 .ipynb_checkpoints
-*.pkl
-*/submissions/*
-logs.log
 src
+
+# PyCaret
+logs.log
+catboost_info
+
+# Saved models
+adversarial/victim
+*.pkl
+
+# Model outputs
+*/submissions/*
